@@ -1,8 +1,13 @@
-const tasks = [];
+let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+function saveTasks() {
+  localStorage.setItem('tasks', JSON.stringify(tasks));
+}
 
 function addTask(title, description, dueDate) {
   const task = { title, description, dueDate, completed: false };
   tasks.push(task);
+  saveTasks();
   displayTasks();
 }
 
@@ -43,31 +48,38 @@ function displayTasks() {
       <p><strong>Description:</strong> ${task.description}</p>
       <p><strong>Due Date:</strong> ${task.dueDate}</p>
       <p><strong>Completed:</strong> ${task.completed}</p>
-      <button onclick="completeTask('${task.title}')">Mark as Complete</button>
-      <button onclick="deleteTask('${task.title}')">Delete Task</button>
+      <button onclick="editTask(${index})">Edit</button>
+      <button onclick="completeTask(${index})">Mark as Complete</button>
+      <button onclick="deleteTask(${index})">Delete Task</button>
     `;
     taskList.appendChild(taskElement);
   });
 }
 
-function completeTask(title) {
-  const task = tasks.find(task => task.title === title);
-  if (task) {
-    task.completed = true;
-    alert(`Marked task "${title}" as completed!`);
-    displayTasks();
-  } else {
-    alert("Task not found!");
-  }
+function completeTask(index) {
+  tasks[index].completed = true;
+  saveTasks();
+  displayTasks();
 }
 
-function deleteTask(title) {
-  const index = tasks.findIndex(task => task.title === title);
-  if (index !== -1) {
-    tasks.splice(index, 1);
-    alert(`Deleted task "${title}".`);
-    displayTasks();
-  } else {
-    alert("Task not found!");
-  }
+function deleteTask(index) {
+  tasks.splice(index, 1);
+  saveTasks();
+  displayTasks();
 }
+
+function editTask(index) {
+  const newTitle = prompt("Enter new title:", tasks[index].title);
+  const newDescription = prompt("Enter new description:", tasks[index].description);
+  const newDueDate = prompt("Enter new due date:", tasks[index].dueDate);
+
+  if (newTitle) tasks[index].title = newTitle;
+  if (newDescription) tasks[index].description = newDescription;
+  if (newDueDate) tasks[index].dueDate = newDueDate;
+
+  saveTasks();
+  displayTasks();
+}
+
+// Initial display of tasks
+displayTasks();
